@@ -1,5 +1,6 @@
+import { ThemedText } from "@/components/themed/ThemedText";
+import { ThemedView } from "@/components/themed/ThemedView";
 import { Text, View } from "react-native";
-import {ThemedView} from "@/components/ThemedView";
 
 export default function StoreScreen() {
   return (
@@ -10,7 +11,9 @@ export default function StoreScreen() {
         alignItems: "center",
       }}
     >
-      <Text>HERE THE IN-APP PURCHASE STORE /!\ NOT AVAILABLE YET /!\</Text>
+      <ThemedText>
+        HERE THE IN-APP PURCHASE STORE /!\ NOT AVAILABLE YET /!\
+      </ThemedText>
     </ThemedView>
   );
 }
