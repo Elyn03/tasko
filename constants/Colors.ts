@@ -25,7 +25,7 @@ export const Colors = {
     },
     pinkSalmon: "#FAC8C1",
     salmon: "#F5907C",
-    darkTeam: "#006D81",
+    darkTeal: "#006D81",
     teal: "#58A4B0",
     lightTeal: "#BADBD0",
 };
