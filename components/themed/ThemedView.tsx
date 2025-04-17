@@ -1,6 +1,7 @@
-import {StyleSheet, View, type ViewProps} from 'react-native';
+import {Animated, StyleSheet, View, type ViewProps} from 'react-native';
 import { useThemeColor } from '@/hooks/useThemeColor';
 import Header from "@/components/Header";
+import ScrollView = Animated.ScrollView;
 
 export type ThemedViewProps = ViewProps & {
   lightColor?: string;
@@ -17,7 +18,13 @@ export function ThemedView({ style, lightColor, darkColor, showHeader = true, ..
           {...otherProps}
       >
         { showHeader && <Header /> }
-        <View {...otherProps} />
+        <ScrollView
+            showsVerticalScrollIndicator={true}
+            bounces={true}
+            {...otherProps}
+        >
+          <View {...otherProps} />
+        </ScrollView>
       </View>
   )
 }
