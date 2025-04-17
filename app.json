@@ -9,12 +9,19 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.tasko"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "package": "com.anonymous.tasko",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBYTO34w607_CcNwD_1QF8MfJ56AGj8mSw"
+        }
       }
     },
     "web": {

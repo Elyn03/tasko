@@ -1,3 +1,4 @@
+import { ThemedText } from "@/components/themed/ThemedText";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { Text, View } from "react-native";
 
@@ -10,7 +11,7 @@ export default function HomeScreen() {
         alignItems: "center",
       }}
     >
-      <Text>HERE IS THE LIST OF YOUR TASKS</Text>
+      <ThemedText>HERE IS THE LIST OF YOUR TASKS</ThemedText>
     </ThemedView>
   );
 }
