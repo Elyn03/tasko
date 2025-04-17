@@ -1,5 +1,5 @@
+import { ThemedView } from "@/components/themed/ThemedView";
 import { Text, View } from "react-native";
-import {ThemedView} from "@/components/ThemedView";
 
 export default function MapScreen() {
   return (
