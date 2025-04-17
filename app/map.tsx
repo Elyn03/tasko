@@ -2,23 +2,22 @@ import {
   StyleSheet,
   TouchableOpacity,
   View,
-  Platform,
   Text,
   Animated,
   Easing,
 } from "react-native";
-import MapView, { Marker, MapPressEvent, Callout } from "react-native-maps";
+import MapView, { Marker } from "react-native-maps";
 import findLocalisation from "@/hooks/findLocalisation";
-import React, { useRef, useState } from "react";
-import { Ionicons } from "@expo/vector-icons";
+import React, { useEffect, useRef, useState } from "react";
+
 import LottieView from "lottie-react-native";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedText } from "@/components/themed/ThemedText";
-// import { AppleMaps, GoogleMaps } from "expo-maps";
+import { supabase } from "@/lib/supabase";
 
 export default function MapScreen() {
   const mapRef = useRef<MapView>(null);
-  const [pins, setPins] = useState<{ latitude: number; longitude: number }[]>(
+  const [pins, setPins] = useState<{ id: String; lat: number; lng: number }[]>(
     []
   );
 
@@ -35,6 +34,28 @@ export default function MapScreen() {
   const longitude = localisation?.coords.longitude || 0;
 
   const popupAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const fetchPins = async (id: number) => {
+      const { data, error } = await supabase.rpc("get_coords_by_user", {
+        user_id: id,
+      });
+
+      if (error) {
+        console.error("RPC error:", error);
+        return null;
+      }
+      setPins(data);
+      console.log("data user : ", data);
+    };
+
+    fetchPins(1);
+  }, []);
+  console.log("Pins:", pins);
+
+  pins.map((pin) => {
+    console.log(pin.lat, pin.lng);
+  });
 
   const showPopup = () => {
     setPopupVisible(true);
@@ -56,13 +77,8 @@ export default function MapScreen() {
 
   const popupTranslateY = popupAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [200, 0], // start off screen
+    outputRange: [200, 0],
   });
-
-  const handleMapPress = (event: MapPressEvent) => {
-    const { latitude, longitude } = event.nativeEvent.coordinate;
-    setPins((prevPins) => [...prevPins, { latitude, longitude }]);
-  };
 
   return (
     <ThemedView showHeader={false}>
@@ -70,7 +86,6 @@ export default function MapScreen() {
         <MapView
           ref={mapRef}
           style={styles.map}
-          onPress={handleMapPress}
           initialRegion={{
             latitude,
             longitude,
@@ -95,21 +110,26 @@ export default function MapScreen() {
               );
             }}
           />
-          {pins.map((pin, index) => (
-            <Marker
-              key={index}
-              coordinate={{ latitude: pin.latitude, longitude: pin.longitude }}
-              onPress={() => {
-                console.log(pin.latitude, pin.longitude);
-                setSelectedCoord({
-                  latitude: pin.latitude,
-                  longitude: pin.longitude,
-                });
-                setPopupVisible(true);
-                showPopup();
-              }}
-            ></Marker>
-          ))}
+          {pins
+            .filter((pin) => pin.lat && pin.lng)
+            .map((pin, index) => (
+              <Marker
+                key={index}
+                coordinate={{
+                  latitude: pin.lat,
+                  longitude: pin.lng,
+                }}
+                onPress={() => {
+                  console.log(pin.lat, pin.lng);
+                  setSelectedCoord({
+                    latitude: pin.lat,
+                    longitude: pin.lng,
+                  });
+                  setPopupVisible(true);
+                  showPopup();
+                }}
+              ></Marker>
+            ))}
         </MapView>
       ) : (
         <View>
@@ -145,29 +165,27 @@ export default function MapScreen() {
               <Text style={styles.popupTitle}>Tour Eiffel</Text>
               <Text>Latitude: {selectedCoord.latitude.toFixed(4)}</Text>
               <Text>Longitude: {selectedCoord.longitude.toFixed(4)}</Text>
-              <TouchableOpacity onPress={hidePopup}>
-                <Text style={styles.closeBtn}>Fermer</Text>
-              </TouchableOpacity>
+              <TouchableOpacity onPress={hidePopup}></TouchableOpacity>
             </TouchableOpacity>
           </Animated.View>
         </TouchableOpacity>
       )}
 
-      {/*       <TouchableOpacity
+      <TouchableOpacity
         style={styles.floatingButton}
-        // onPress={() => {
-        //   if (localisation) {
-        //     mapRef.current?.animateToRegion({
-        //       latitude: localisation.coords.latitude,
-        //       longitude: localisation.coords.longitude,
-        //       latitudeDelta: 0.01,
-        //       longitudeDelta: 0.01,
-        //     });
-        //   }
-        // }}
+        onPress={() => {
+          if (localisation) {
+            mapRef.current?.animateToRegion({
+              latitude: localisation.coords.latitude,
+              longitude: localisation.coords.longitude,
+              latitudeDelta: 0.01,
+              longitudeDelta: 0.01,
+            });
+          }
+        }}
       >
         <ThemedText>HERE</ThemedText>
-      </TouchableOpacity> */}
+      </TouchableOpacity>
     </ThemedView>
   );
 }
@@ -207,12 +225,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 8,
   },
-  closeBtn: {
-    color: "blue",
-    marginTop: 10,
-    fontWeight: "bold",
-    textAlign: "right",
-  },
   arrowDown: {
     width: 0,
     height: 0,
@@ -227,46 +239,3 @@ const styles = StyleSheet.create({
     marginBottom: -1,
   },
 });
-
-{
-  /*       {localisation ? (
-        <GoogleMaps.View
-          cameraPosition={{
-            coordinates: { latitude, longitude },
-            zoom: 15,
-          }}
-          markers={[
-            {
-              coordinates: { latitude, longitude },
-              title: "My Location",
-              snippet: "This is my location",
-              showCallout: true,
-            },
-          ]}
-          style={styles.map}
-        />
-      ) : (
-        <View>
-          <ThemedText>Loading map...</ThemedText>
-          <LottieView
-            autoPlay
-            ref={animation}
-            style={{
-              width: 200,
-              height: 200,
-              backgroundColor: "transparent",
-            }}
-            source={require("../assets/animations/walkingPigeon.json")}
-          />
-        </View>
-      )} */
-}
-{
-  /*       {Platform.OS === "ios" ? (
-        <AppleMaps.View style={{ flex: 1 }} />
-      ) : Platform.OS === "android" ? (
-        <GoogleMaps.View style={{ flex: 1 }} />
-      ) : (
-        <Text>Maps are only available on Android and iOS</Text>
-      )} */
-}
