@@ -30,7 +30,7 @@ export default function SignUp() {
         }
 
         try {
-            const result = await signUpNewUser(email, password)
+            const result = await signUpNewUser(name, email, password)
 
             if (result.success) {
                 navigation.navigate("HomePage")

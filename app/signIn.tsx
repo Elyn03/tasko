@@ -1,5 +1,6 @@
 import React, {useState} from "react"
 import { StyleSheet, View, TextInput, Text } from 'react-native'
+import {UserAuth} from "@/context/AuthContext";
 
 // Components
 import {ThemedView} from "@/components/themed/ThemedView";
@@ -9,8 +10,6 @@ import {ThemedButton} from "@/components/themed/ThemedButton";
 // Navigation
 import {ParamListBase, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {UserAuth} from "@/context/AuthContext";
-import {Colors} from "@/constants/Colors";
 
 
 export default function SignIn() {
@@ -23,7 +22,6 @@ export default function SignIn() {
     const {signInUser} = UserAuth()
 
     const handleSignIn = async () => {
-        console.log(email, password)
         setLoading(true)
         try {
             const result = await signInUser(email, password)
