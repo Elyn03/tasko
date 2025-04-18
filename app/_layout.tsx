@@ -9,6 +9,7 @@ import CreationScreen from "@/app/creation";
 import ProfileScreen from "@/app/profile";
 import SignIn from "@/app/signIn";
 import SignUp from "@/app/signUp";
+import TaskScreen from "@/app/listTasks/[task]";
 
 // Navigator
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -27,6 +28,13 @@ export default function RootLayout(props: any) {
                 <Stack.Screen name="SignIn" component={SignIn} />
                 <Stack.Screen name="SignUp" component={SignUp} />
                 <Stack.Screen name="HomePage" component={HomePage} />
+                <Stack.Screen name="Task" component={TaskScreen}
+                    options={({ route }) => {
+                        const params = route.params as { id?: any };
+                        return { title: params.id ?? "0" };
+                    }}
+                />
+
             </Stack.Navigator>
         </AuthContextProvider>
     )
