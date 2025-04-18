@@ -1,5 +1,6 @@
-import { TouchableOpacity, Text, StyleSheet, type TouchableOpacityProps, type TextStyle } from 'react-native';
+import { TouchableOpacity, StyleSheet, type TouchableOpacityProps, type TextStyle } from 'react-native';
 import {Colors} from "@/constants/Colors";
+import {ThemedText} from "@/components/themed/ThemedText";
 
 export type ThemedButtonProps = TouchableOpacityProps & {
   lightColor?: string;
@@ -38,7 +39,7 @@ export function ThemedButton({
           disabled={disabled}
           {...rest}
       >
-        <Text
+        <ThemedText
             style={[
               styles.text,
               type === 'default' ? styles.defaultText : undefined,
@@ -49,7 +50,7 @@ export function ThemedButton({
             ]}
         >
           {title}
-        </Text>
+        </ThemedText>
       </TouchableOpacity>
   );
 }
