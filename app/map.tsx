@@ -1,19 +1,19 @@
-import {
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  Text,
-  Animated,
-  Easing,
-} from "react-native";
-import MapView, { Marker } from "react-native-maps";
-import findLocalisation from "@/hooks/findLocalisation";
 import React, { useEffect, useRef, useState } from "react";
-
+import {StyleSheet, TouchableOpacity, View, Text, Animated, Easing,} from "react-native";
 import LottieView from "lottie-react-native";
+import { supabase } from "@/lib/supabase";
+import findLocalisation from "@/hooks/findLocalisation";
+
+// Components
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedText } from "@/components/themed/ThemedText";
-import { supabase } from "@/lib/supabase";
+
+// Colors
+import {AppTheme} from "@/context/ThemeContext";
+import {MapColors} from "@/constants/MapColors";
+
+// Map
+import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 
 export default function MapScreen() {
   const mapRef = useRef<MapView>(null);
@@ -34,6 +34,7 @@ export default function MapScreen() {
   const longitude = localisation?.coords.longitude || 0;
 
   const popupAnim = useRef(new Animated.Value(0)).current;
+  const { theme } = AppTheme()
 
   useEffect(() => {
     const fetchPins = async (id: number) => {
@@ -81,11 +82,14 @@ export default function MapScreen() {
   });
 
   return (
-    <View>
+    <ThemedView showHeader={false} isScrollView={false}>
       {localisation ? (
         <MapView
           ref={mapRef}
           style={styles.map}
+          userInterfaceStyle={theme === "light" ? "light" : "dark"}
+          provider={PROVIDER_GOOGLE}
+          customMapStyle={theme === "light" ? MapColors.light : MapColors.dark}
           initialRegion={{
             latitude,
             longitude,
@@ -186,7 +190,7 @@ export default function MapScreen() {
       >
         <ThemedText>HERE</ThemedText>
       </TouchableOpacity>
-    </View>
+    </ThemedView>
   );
 }
 const styles = StyleSheet.create({

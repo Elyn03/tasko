@@ -1,8 +1,11 @@
 import {StyleSheet, View, Image, Switch} from "react-native";
 import {useEffect, useState} from "react";
-import {UserAuth} from "@/context/AuthContext";
 import {Colors} from "@/constants/Colors";
 import {supabase} from "@/lib/supabase";
+
+// Context
+import {UserAuth} from "@/context/AuthContext";
+import {AppTheme} from "@/context/ThemeContext";
 
 // Navigation
 import {ParamListBase, useNavigation} from '@react-navigation/native';
@@ -30,11 +33,13 @@ export default function ProfileScreen() {
     const [duckUrl, setDuckUrl] = useState<string>("https://images.unsplash.com/photo-1578956919791-af7615c94b90?q=80&w=1939&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")
 
     const {session, signOut} = UserAuth()
+    const {theme, toggleTheme} = AppTheme()
     const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
     useEffect(() => {
         getUser().then()
         getProfile().then()
+        setIsLightMode(theme === "light")
     }, []);
 
     const getUser = async () => {
@@ -45,6 +50,11 @@ export default function ProfileScreen() {
     const getProfile = async () => {
         let image = await getImageProfile(session);
         setDuckUrl(image)
+    }
+
+    const toogleThemeColor = () => {
+        setIsLightMode(!isLightMode)
+        toggleTheme()
     }
 
     const logOut = async () => {
@@ -71,12 +81,12 @@ export default function ProfileScreen() {
 
                 <View style={styles.settingsProfile}>
                     <View style={styles.setting}>
-                        <ThemedText style={styles.settingText}>Light Mode</ThemedText>
+                        <ThemedText style={styles.settingText}>Mode Clair</ThemedText>
                         <Switch
                             trackColor={{false: Colors.teal, true: Colors.pinkSalmon}}
                             thumbColor={isLightMode ? Colors.teal : Colors.pinkSalmon}
                             ios_backgroundColor="#3e3e3e"
-                            onValueChange={setIsLightMode}
+                            onValueChange={toogleThemeColor}
                             value={isLightMode}
                         />
                     </View>
