@@ -174,7 +174,7 @@ export default function CreationScreen() {
             </MapView>
           ) : (
             <View style={styles.loadingContainer}>
-              <ThemedText>Chargement de la carte ...</ThemedText>
+              <Text style={{ color: "white" }}>Chargement de la carte ...</Text>
               <LottieView
                 autoPlay
                 ref={animation}
