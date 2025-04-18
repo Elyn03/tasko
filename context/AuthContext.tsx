@@ -9,12 +9,12 @@ type AuthResponse = {
 
 const AuthContext = createContext<{
     session: any;
-    signUpNewUser: (email: string, password: string) => Promise<AuthResponse>;
+    signUpNewUser: (name: string, email: string, password: string) => Promise<AuthResponse>;
     signInUser: (email: string, password: string) => Promise<AuthResponse>;
     signOut: () => Promise<void>;
 }>({
     session: undefined,
-    signUpNewUser: async (email: string, password: string) => ({ success: false, data: null }),
+    signUpNewUser: async (name: string, email: string, password: string) => ({ success: false, data: null }),
     signInUser: async (email: string, password: string) => ({ success: false, data: null }),
     signOut: async () => {},
 })
@@ -34,7 +34,7 @@ export function AuthContextProvider({children}: PropsWithChildren) {
     }, []);
 
 
-    const signUpNewUser = async (email: string, password: string) => {
+    const signUpNewUser = async (name: string, email: string, password: string) => {
         const {data, error} = await supabase.auth.signUp({
             email: email,
             password: password,
@@ -49,7 +49,26 @@ export function AuthContextProvider({children}: PropsWithChildren) {
 
             return {success: false, error: errorMessage}
         }
+
+        const userCreated = await createUser(name, email)
+
+        if (userCreated.error) {
+            console.log("userCreated.error", userCreated.error)
+            return {success: false, error: "insert user"}
+        }
         return {success: true, data: data}
+    }
+
+    const createUser = async (name: string, email: string) => {
+        const { error } = await supabase
+            .from("users")
+            .insert({
+                name: name,
+                email: email
+            })
+
+        if (error) return {success: false, error: error}
+        return {success: true}
     }
 
     const signInUser = async (email: string, password: string) => {
@@ -73,6 +92,7 @@ export function AuthContextProvider({children}: PropsWithChildren) {
             console.error("error", error)
         }
     }
+
     return (
         <AuthContext.Provider value={{ session, signUpNewUser, signInUser, signOut }}>
             {children}
