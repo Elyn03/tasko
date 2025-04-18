@@ -141,7 +141,7 @@ export default function CreationScreen() {
         </View>
 
         <View style={styles.mapContainer}>
-          {!localisation ? (
+          {localisation ? (
             <MapView
               ref={mapRef}
               style={styles.map}
