@@ -2,15 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
+import LottieView from "lottie-react-native";
+import MapView, { MapPressEvent, Marker } from "react-native-maps";
 
 // Components
-import {
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import {StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import { ThemedButton } from "@/components/themed/ThemedButton";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedText } from "@/components/themed/ThemedText";
@@ -21,8 +17,7 @@ import { UserAuth } from "@/context/AuthContext";
 // Hooks
 import { findUser } from "@/hooks/findUser";
 import findLocalisation from "@/hooks/findLocalisation";
-import MapView, { MapPressEvent, Marker } from "react-native-maps";
-import LottieView from "lottie-react-native";
+import {AppTheme} from "@/context/ThemeContext";
 
 export default function CreationScreen() {
   const [title, setTitle] = useState("");
@@ -35,6 +30,7 @@ export default function CreationScreen() {
   const animation = useRef<LottieView>(null);
 
   const { session } = UserAuth();
+  const { theme } = AppTheme()
 
   useEffect(() => {
     console.log("position", position);
@@ -135,7 +131,7 @@ export default function CreationScreen() {
               placeholder="Position"
             />
             <TouchableOpacity onPress={getPosition}>
-              <Ionicons name={"locate"} size={36} color={Colors.darkTeal} />
+              <Ionicons name={"locate"} size={36} color={theme === "light" ? Colors.darkTeal : Colors.pinkSalmon} />
             </TouchableOpacity>
           </View>
         </View>

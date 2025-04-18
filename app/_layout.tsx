@@ -17,6 +17,7 @@ import {createNativeStackNavigator} from "@react-navigation/native-stack";
 
 // Provider
 import {AuthContextProvider} from "@/context/AuthContext";
+import {AppTheme, ThemeContextProvider} from "@/context/ThemeContext";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -24,23 +25,31 @@ const Stack = createNativeStackNavigator();
 export default function RootLayout(props: any) {
     return (
         <AuthContextProvider>
-            <Stack.Navigator screenOptions={{headerShown: false}}>
-                <Stack.Screen name="SignIn" component={SignIn} />
-                <Stack.Screen name="SignUp" component={SignUp} />
-                <Stack.Screen name="HomePage" component={HomePage} />
-                <Stack.Screen name="Task" component={TaskScreen}
-                    options={({ route }) => {
-                        const params = route.params as { id?: any };
-                        return { title: params.id ?? "0" };
-                    }}
-                />
-
-            </Stack.Navigator>
+            <ThemeContextProvider>
+                <Stack.Navigator screenOptions={{headerShown: false}}>
+                    <Stack.Screen name="SignIn" component={SignIn} />
+                    <Stack.Screen name="SignUp" component={SignUp} />
+                    <Stack.Screen name="HomePage" component={HomePage} />
+                    <Stack.Screen name="Task" component={TaskScreen}
+                                  options={({ route }) => {
+                                      const params = route.params as { id?: any };
+                                      return { title: params.id ?? "0" };
+                                  }}
+                    />
+                </Stack.Navigator>
+            </ThemeContextProvider>
         </AuthContextProvider>
     )
 }
 
 function HomePage() {
+    const {theme} = AppTheme()
+    const isLightMode = theme === "light"
+
+    const backgroundColor = isLightMode ? "#FEFEFE" : "#252525"
+    const activeTintColor = Colors.salmon
+    const inactiveTintColor = isLightMode ? Colors.darkTeal : Colors.lightTeal
+
     return (
         <Tab.Navigator
             initialRouteName={"Home"}
@@ -48,9 +57,10 @@ function HomePage() {
                 headerShown: false,
                 tabBarStyle: {
                     height: 60,
+                    backgroundColor: backgroundColor
                 },
-                tabBarActiveTintColor: Colors.salmon,
-                tabBarInactiveTintColor: Colors.pinkSalmon,
+                tabBarActiveTintColor: activeTintColor,
+                tabBarInactiveTintColor: inactiveTintColor,
                 tabBarIcon: ({focused}) => {
                     let icon: keyof typeof Ionicons.glyphMap = "home";
                     if (route.name === "Map") {
@@ -64,7 +74,7 @@ function HomePage() {
                     }
 
                     return (
-                        <Ionicons name={icon} size={24} color={focused ? Colors.salmon : Colors.pinkSalmon} />
+                        <Ionicons name={icon} size={24} color={focused ? activeTintColor : inactiveTintColor} />
                     )
                 }
             })}>

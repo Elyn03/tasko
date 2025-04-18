@@ -7,9 +7,10 @@ export type ThemedViewProps = ViewProps & {
   lightColor?: string;
   darkColor?: string;
   showHeader?: boolean;
+  isScrollView?: boolean;
 };
 
-export function ThemedView({ style, lightColor, darkColor, showHeader = true, ...otherProps }: ThemedViewProps) {
+export function ThemedView({style, lightColor, darkColor, showHeader = true, isScrollView = true, ...otherProps }: ThemedViewProps) {
   const backgroundColor = useThemeColor({ light: lightColor, dark: darkColor }, 'background');
 
   return (
@@ -18,13 +19,16 @@ export function ThemedView({ style, lightColor, darkColor, showHeader = true, ..
           {...otherProps}
       >
         { showHeader && <Header /> }
-        <ScrollView
-            showsVerticalScrollIndicator={true}
-            bounces={true}
-            {...otherProps}
-        >
-          <View {...otherProps} />
-        </ScrollView>
+        { isScrollView ?
+            <ScrollView
+                showsVerticalScrollIndicator={true}
+                bounces={true}
+                {...otherProps}
+            >
+              <View {...otherProps} />
+            </ScrollView> :
+            <View {...otherProps} />
+        }
       </View>
   )
 }
