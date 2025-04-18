@@ -141,7 +141,7 @@ export default function CreationScreen() {
         </View>
 
         <View style={styles.mapContainer}>
-          {localisation ? (
+          {!localisation ? (
             <MapView
               ref={mapRef}
               style={styles.map}
@@ -174,7 +174,7 @@ export default function CreationScreen() {
             </MapView>
           ) : (
             <View style={styles.loadingContainer}>
-              <ThemedText>Chargement de la carte ...</ThemedText>
+              <Text style={{ color: "white" }}>Chargement de la carte ...</Text>
               <LottieView
                 autoPlay
                 ref={animation}
