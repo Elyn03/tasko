@@ -81,7 +81,7 @@ export default function MapScreen() {
   });
 
   return (
-    <ThemedView showHeader={false}>
+    <View>
       {localisation ? (
         <MapView
           ref={mapRef}
@@ -186,7 +186,7 @@ export default function MapScreen() {
       >
         <ThemedText>HERE</ThemedText>
       </TouchableOpacity>
-    </ThemedView>
+    </View>
   );
 }
 const styles = StyleSheet.create({
