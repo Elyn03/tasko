@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
-import { Colors } from "@/constants/Colors";
 import LottieView from "lottie-react-native";
-import MapView, { MapPressEvent, Marker } from "react-native-maps";
+import MapView, {MapPressEvent, Marker, PROVIDER_GOOGLE} from "react-native-maps";
 
 // Components
 import {StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
@@ -18,6 +17,11 @@ import { UserAuth } from "@/context/AuthContext";
 import { findUser } from "@/hooks/findUser";
 import findLocalisation from "@/hooks/findLocalisation";
 import {AppTheme} from "@/context/ThemeContext";
+
+// Constants
+import { Colors } from "@/constants/Colors";
+import { MapColors } from "@/constants/MapColors";
+
 
 export default function CreationScreen() {
   const [title, setTitle] = useState("");
@@ -142,6 +146,8 @@ export default function CreationScreen() {
               ref={mapRef}
               style={styles.map}
               onPress={handleMapPress}
+              provider={PROVIDER_GOOGLE}
+              customMapStyle={theme === "light" ? MapColors.light : MapColors.dark}
               initialRegion={{
                 latitude,
                 longitude,

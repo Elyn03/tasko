@@ -87,7 +87,6 @@ export default function MapScreen() {
         <MapView
           ref={mapRef}
           style={styles.map}
-          userInterfaceStyle={theme === "light" ? "light" : "dark"}
           provider={PROVIDER_GOOGLE}
           customMapStyle={theme === "light" ? MapColors.light : MapColors.dark}
           initialRegion={{

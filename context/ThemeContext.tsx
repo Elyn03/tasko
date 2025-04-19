@@ -10,6 +10,7 @@ const ThemeContext = createContext<{
     theme: "light",
     toggleTheme: () => {},
 })
+
 const deviceTheme = useColorScheme() ?? 'light';
 
 export function ThemeContextProvider({children}: PropsWithChildren) {
