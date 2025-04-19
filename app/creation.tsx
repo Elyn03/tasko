@@ -12,11 +12,13 @@ import { ThemedText } from "@/components/themed/ThemedText";
 
 // Context
 import { UserAuth } from "@/context/AuthContext";
+import {AppTheme} from "@/context/ThemeContext";
+import {AppNetwork} from "@/context/NetworkContext";
 
 // Hooks
 import { findUser } from "@/hooks/findUser";
 import findLocalisation from "@/hooks/findLocalisation";
-import {AppTheme} from "@/context/ThemeContext";
+import {storeDatabaseOfflineTask, storeLocalOfflineTask} from "@/hooks/handleOfflineTasks";
 
 // Constants
 import { Colors } from "@/constants/Colors";
@@ -35,6 +37,7 @@ export default function CreationScreen() {
 
   const { session } = UserAuth();
   const { theme } = AppTheme()
+  const { isConnected } = AppNetwork()
 
   useEffect(() => {
     console.log("position", position);
@@ -72,13 +75,22 @@ export default function CreationScreen() {
       return;
     }
 
-    // POINT(lng lat)
-    const { error } = await supabase.from("tasks").insert({
+    const payload = {
       user_id: user.id,
       title: title,
       description: description ? description : null,
       location: `POINT(${position})`,
-    });
+    }
+
+    const { error } = await supabase
+        .from("tasks")
+        .insert(payload);
+
+    if (isConnected) {
+      await storeDatabaseOfflineTask()
+    } else {
+      await storeLocalOfflineTask(payload)
+    }
 
     if (error) return { success: false, error: error };
 
@@ -133,6 +145,8 @@ export default function CreationScreen() {
               value={position}
               autoCapitalize={"none"}
               placeholder="Position"
+              numberOfLines={1}
+              multiline={false}
             />
             <TouchableOpacity onPress={getPosition}>
               <Ionicons name={"locate"} size={36} color={theme === "light" ? Colors.darkTeal : Colors.pinkSalmon} />

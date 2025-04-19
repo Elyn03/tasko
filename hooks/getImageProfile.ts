@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export async function getImageProfile(session: any) {
+export const getImageProfile = async (session: any) => {
     const key = `duck-profile-${session.user.id}`;
 
     const urlStorage = await AsyncStorage.getItem(key)
