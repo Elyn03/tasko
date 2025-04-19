@@ -34,7 +34,7 @@ export default function StoreCard(props: any) {
                     {props.description}
                 </ThemedText>
 
-                <ThemedButton type={"secondary"} title={props.price} />
+                <ThemedButton type={"secondary"} title={`${props.price}€`} />
             </View>
         </View>
     )

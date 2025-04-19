@@ -49,11 +49,12 @@ export default function StoreScreen() {
         filterItems.push(newItem);
       }
 
-      filterItems.map((it) => {
-        it.items.map((da) => {
-          console.log(da);
-        });
+      filterItems.sort((itemA: IItem, itemB: IItem) => {
+        if (itemA.category === "default") return -1;
+        if (itemB.category === "default") return 1;
+        return itemA.category.localeCompare(itemB.category);
       });
+
       setItems(filterItems);
     }
   };
@@ -65,7 +66,7 @@ export default function StoreScreen() {
           return (
             <View style={styles.categoryContainer} key={item.category}>
               <View style={styles.categoryTitle}>
-                <ThemedText>{item.category.toUpperCase()}</ThemedText>
+                <ThemedText fontColor={Colors.dark.background}>{item.category.toUpperCase()}</ThemedText>
               </View>
 
               <View style={styles.category}>
