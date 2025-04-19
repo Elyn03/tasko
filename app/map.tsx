@@ -1,5 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import {StyleSheet, TouchableOpacity, View, Text, Animated, Easing,} from "react-native";
+import {
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  Text,
+  Animated,
+  Easing,
+} from "react-native";
 import LottieView from "lottie-react-native";
 import { supabase } from "@/lib/supabase";
 import findLocalisation from "@/hooks/findLocalisation";
@@ -9,17 +16,20 @@ import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedText } from "@/components/themed/ThemedText";
 
 // Colors
-import {AppTheme} from "@/context/ThemeContext";
-import {MapColors} from "@/constants/MapColors";
+import { AppTheme } from "@/context/ThemeContext";
+import { MapColors } from "@/constants/MapColors";
 
 // Map
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import { UserTasks } from "@/context/TaskManager";
+import { Ionicons } from "@expo/vector-icons";
+import { Colors } from "@/constants/Colors";
 
 export default function MapScreen() {
   const mapRef = useRef<MapView>(null);
-  const [pins, setPins] = useState<{ id: String; lat: number; lng: number }[]>(
+  /*  const [pins, setPins] = useState<{ id: String; lat: number; lng: number }[]>(
     []
-  );
+  ); */
 
   const [popupVisible, setPopupVisible] = useState(false);
   const [selectedCoord, setSelectedCoord] = useState({
@@ -34,29 +44,8 @@ export default function MapScreen() {
   const longitude = localisation?.coords.longitude || 0;
 
   const popupAnim = useRef(new Animated.Value(0)).current;
-  const { theme } = AppTheme()
-
-  useEffect(() => {
-    const fetchPins = async (id: number) => {
-      const { data, error } = await supabase.rpc("get_coords_by_user", {
-        user_id: id,
-      });
-
-      if (error) {
-        console.error("RPC error:", error);
-        return null;
-      }
-      setPins(data);
-      console.log("data user : ", data);
-    };
-
-    fetchPins(1);
-  }, []);
-  console.log("Pins:", pins);
-
-  pins.map((pin) => {
-    console.log(pin.lat, pin.lng);
-  });
+  const { theme } = AppTheme();
+  const { tasks } = UserTasks();
 
   const showPopup = () => {
     setPopupVisible(true);
@@ -113,7 +102,7 @@ export default function MapScreen() {
               );
             }}
           />
-          {pins
+          {tasks
             .filter((pin) => pin.lat && pin.lng)
             .map((pin, index) => (
               <Marker
@@ -135,8 +124,10 @@ export default function MapScreen() {
             ))}
         </MapView>
       ) : (
-        <View>
-          <ThemedText>Loading map...</ThemedText>
+        <View style={styles.animationContainer}>
+          <ThemedText type="title" style={{ paddingTop: 16, paddingLeft: 16 }}>
+            Chargement de la carte ...
+          </ThemedText>
           <LottieView
             autoPlay
             ref={animation}
@@ -174,21 +165,35 @@ export default function MapScreen() {
         </TouchableOpacity>
       )}
 
-      <TouchableOpacity
-        style={styles.floatingButton}
-        onPress={() => {
-          if (localisation) {
-            mapRef.current?.animateToRegion({
-              latitude: localisation.coords.latitude,
-              longitude: localisation.coords.longitude,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01,
-            });
-          }
-        }}
-      >
-        <ThemedText>HERE</ThemedText>
-      </TouchableOpacity>
+      {localisation && (
+        <TouchableOpacity
+          style={[
+            styles.floatingButton,
+            {
+              backgroundColor:
+                theme === "light" ? Colors.pinkSalmon : Colors.darkTeal,
+            },
+          ]}
+          onPress={() => {
+            if (localisation) {
+              mapRef.current?.animateToRegion({
+                latitude: localisation.coords.latitude,
+                longitude: localisation.coords.longitude,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              });
+            }
+          }}
+        >
+          <ThemedText>
+            <Ionicons
+              name={"locate"}
+              size={24}
+              color={theme === "light" ? Colors.darkTeal : Colors.pinkSalmon}
+            />
+          </ThemedText>
+        </TouchableOpacity>
+      )}
     </ThemedView>
   );
 }
@@ -201,10 +206,13 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 20,
     right: 20,
-    backgroundColor: "salmon",
     padding: 10,
     borderRadius: 50,
     elevation: 5,
+  },
+  animationContainer: {
+    display: "flex",
+    alignItems: "center",
   },
   popupContainer: {
     position: "absolute",
