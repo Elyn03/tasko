@@ -1,5 +1,6 @@
 import {Colors} from "@/constants/Colors";
 import {Ionicons} from "@expo/vector-icons";
+import {Pressable} from "react-native";
 
 // Screen
 import HomeScreen from "@/app/index";
@@ -76,6 +77,21 @@ function HomePage() {
                     return (
                         <Ionicons name={icon} size={24} color={focused ? activeTintColor : inactiveTintColor} />
                     )
+                },
+                tabBarButton: (props) => {
+                    return (
+                        <Pressable
+                            {...props}
+                            android_ripple={{color: activeTintColor, borderless: false}}
+                            style={(state) => [
+                                props.style,
+                                {
+                                    opacity: state.pressed ? 0.8 : 1,
+                                    transform: [{scale: state.pressed ? 0.95 : 1}],
+                                },
+                            ]}
+                        />
+                    );
                 }
             })}>
             <Tab.Screen name="Home" component={HomeScreen} />

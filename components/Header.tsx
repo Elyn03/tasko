@@ -1,6 +1,7 @@
 import React from 'react'
-import { StyleSheet, View, Text, Image } from 'react-native'
+import { StyleSheet, View, Image } from 'react-native'
 import {Colors} from "@/constants/Colors";
+import {ThemedText} from "@/components/themed/ThemedText";
 
 export default function Header() {
     return (
@@ -9,7 +10,7 @@ export default function Header() {
                 style={styles.headerLogo}
                 source={require('../assets/images/tasko-logo.png')}
             />
-            <Text style={styles.headerTitle}>TASKO</Text>
+            <ThemedText style={styles.headerTitle} type={"title"}>TASKO</ThemedText>
         </View>
     )
 }
@@ -34,8 +35,6 @@ const styles = StyleSheet.create({
         width: 55
     },
     headerTitle: {
-        fontSize: 24,
-        fontWeight: "bold",
         color: Colors.pinkSalmon
-    },
+    }
 })
