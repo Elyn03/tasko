@@ -5,17 +5,17 @@ import {ThemedButton} from "@/components/themed/ThemedButton";
 import {ThemedText} from "@/components/themed/ThemedText";
 
 export default function StoreCard(props: any) {
+
+    const image = props.image ? props.image : "https://i.pinimg.com/736x/f7/17/7a/f7177a1777d04ef5727890ab4d3e9851.jpg"
     return (
         <View style={styles.container}>
             <Image
                 style={styles.image}
-/*
-                source={require('../assets/images/tasko-logo.png')}
-*/
                 source={{
-                    uri: "https://i.pinimg.com/736x/f7/17/7a/f7177a1777d04ef5727890ab4d3e9851.jpg"
+                    uri: image
                 }}
             />
+
             <View style={styles.textsContainer}>
                 <ThemedText
                     style={styles.title}

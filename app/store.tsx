@@ -16,6 +16,7 @@ type IData = {
     category: string;
     created_at: string;
     promotion: number | null;
+    image: string |null
 };
 
 type IItem = {
@@ -80,6 +81,7 @@ export default function StoreScreen() {
                                                         title={data.title}
                                                         description={data.description}
                                                         price={data.price}
+                                                        image={data.image}
                                                     />
                                                 )
                                             })
