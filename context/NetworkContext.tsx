@@ -1,4 +1,4 @@
-import {createContext, PropsWithChildren, useContext, useEffect, useState} from "react";
+import { createContext, PropsWithChildren, useContext, useEffect, useState } from "react";
 import NetInfo from "@react-native-community/netinfo";
 
 const NetworkContext = createContext<{
@@ -11,14 +11,12 @@ export function NetworkContextProvider({children}: PropsWithChildren) {
     const [isConnected, setIsConnected] = useState(true)
 
     useEffect(() => {
-        const unsubscribe = NetInfo.addEventListener((state) => {
-            console.log("Connection type:", state.type);
+        const unsubscribe = NetInfo.addEventListener(state => {
             console.log("Is connected?", state.isConnected);
-            setIsConnected(state.isConnected ?? false); // fallback to false if undefined
+            setIsConnected(state.isConnected ?? false)
         });
-
         return () => {
-            unsubscribe(); // Clean up the listener
+            unsubscribe();
         };
     }, []);
 

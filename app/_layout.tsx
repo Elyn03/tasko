@@ -20,31 +20,34 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { AuthContextProvider } from "@/context/AuthContext";
 import { AppTheme, ThemeContextProvider } from "@/context/ThemeContext";
 import { TasksContextProvider } from "@/context/TaskManager";
+import { NetworkContextProvider } from "@/context/NetworkContext";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 export default function RootLayout(props: any) {
   return (
-    <AuthContextProvider>
-      <ThemeContextProvider>
-        <TasksContextProvider>
-          <Stack.Navigator screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="SignIn" component={SignIn} />
-            <Stack.Screen name="SignUp" component={SignUp} />
-            <Stack.Screen name="HomePage" component={HomePage} />
-            <Stack.Screen
-              name="Task"
-              component={TaskScreen}
-              options={({ route }) => {
-                const params = route.params as { id?: any };
-                return { title: params.id ?? "0" };
-              }}
-            />
-          </Stack.Navigator>
-        </TasksContextProvider>
-      </ThemeContextProvider>
-    </AuthContextProvider>
+      <NetworkContextProvider>
+          <AuthContextProvider>
+              <ThemeContextProvider>
+                  <TasksContextProvider>
+                      <Stack.Navigator screenOptions={{ headerShown: false }}>
+                          <Stack.Screen name="SignIn" component={SignIn} />
+                          <Stack.Screen name="SignUp" component={SignUp} />
+                          <Stack.Screen name="HomePage" component={HomePage} />
+                          <Stack.Screen
+                              name="Task"
+                              component={TaskScreen}
+                              options={({ route }) => {
+                                  const params = route.params as { id?: any };
+                                  return { title: params.id ?? "0" };
+                              }}
+                          />
+                      </Stack.Navigator>
+                  </TasksContextProvider>
+              </ThemeContextProvider>
+          </AuthContextProvider>
+      </NetworkContextProvider>
   );
 }
 

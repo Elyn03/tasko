@@ -7,7 +7,7 @@ import {
 } from "react";
 import { supabase } from "@/lib/supabase";
 import { UserAuth } from "@/context/AuthContext";
-import { getLocalTaskImages } from "@/hooks/handleLocalStorage";
+import { getLocalTaskImages, stockAllTasks } from "@/hooks/handleLocalStorage";
 
 export type Task = {
   task_id: number;
@@ -73,6 +73,7 @@ export function TasksContextProvider({ children }: PropsWithChildren) {
       return null;
     }
     const newData = await mapTaskImages(data);
+    await stockAllTasks(session, newData)
 
     setTasks(newData);
   };
@@ -80,7 +81,7 @@ export function TasksContextProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     if (!session) return;
 
-    fetchTasks();
+    fetchTasks().then();
   }, [session]);
 
   const markAsDone = async (taskId: number) => {

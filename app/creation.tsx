@@ -40,7 +40,6 @@ import { insertTaskImage } from "@/hooks/handleLocalStorage";
 // Constants
 import { Colors } from "@/constants/Colors";
 import { MapColors } from "@/constants/MapColors";
-import Task from "@/components/Task";
 
 export default function CreationScreen() {
   const [title, setTitle] = useState("");
@@ -130,7 +129,7 @@ export default function CreationScreen() {
 
     if (data) {
       console.log("Task created:", data);
-      fetchTasks.fetchTasks();
+      await fetchTasks.fetchTasks();
 
       let imageToInsert = {
         id: data[0].id,
@@ -139,12 +138,11 @@ export default function CreationScreen() {
       await insertTaskImage(session, imageToInsert);
     }
 
-
-      if (isConnected) {
-          await storeDatabaseOfflineTask()
-      } else {
-          await storeLocalOfflineTask(payload)
-      }
+    if (isConnected) {
+        await storeDatabaseOfflineTask()
+    } else {
+        await storeLocalOfflineTask(payload)
+    }
 
     if (error) return { success: false, error: error };
 
