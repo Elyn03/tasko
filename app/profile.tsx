@@ -2,6 +2,7 @@ import {StyleSheet, View, Image, Switch} from "react-native";
 import {useEffect, useState} from "react";
 import {Colors} from "@/constants/Colors";
 import {supabase} from "@/lib/supabase";
+import * as Notifications from 'expo-notifications';
 
 // Context
 import {UserAuth} from "@/context/AuthContext";
@@ -64,6 +65,14 @@ export default function ProfileScreen() {
         navigation.navigate("SignIn")
     }
 
+    const notificationRequest = async () => {
+        const { status } = await Notifications.requestPermissionsAsync()
+        console.log(status)
+        if (status) {
+            setEnableNotif(status === "granted" )
+        }
+    }
+
     return (
         <ThemedView>
             <View style={styles.container}>
@@ -98,7 +107,7 @@ export default function ProfileScreen() {
                             trackColor={{false: Colors.teal, true: Colors.pinkSalmon}}
                             thumbColor={enableNotif ? Colors.teal : Colors.pinkSalmon}
                             ios_backgroundColor="#3e3e3e"
-                            onValueChange={setEnableNotif}
+                            onValueChange={notificationRequest}
                             value={enableNotif}
                         /></View>
                 </View>

@@ -1,6 +1,10 @@
+import {useEffect, useRef, useState} from "react";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
-import { Pressable } from "react-native";
+import {Platform, Pressable} from "react-native";
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import Constants from "expo-constants";
 
 // Screen
 import HomeScreen from "@/app/index";
@@ -25,30 +29,70 @@ import { NetworkContextProvider } from "@/context/NetworkContext";
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
+
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+        shouldShowAlert: true
+    })
+})
+
 export default function RootLayout(props: any) {
-  return (
-      <NetworkContextProvider>
-          <AuthContextProvider>
-              <ThemeContextProvider>
-                  <TasksContextProvider>
-                      <Stack.Navigator screenOptions={{ headerShown: false }}>
-                          <Stack.Screen name="SignIn" component={SignIn} />
-                          <Stack.Screen name="SignUp" component={SignUp} />
-                          <Stack.Screen name="HomePage" component={HomePage} />
-                          <Stack.Screen
-                              name="Task"
-                              component={TaskScreen}
-                              options={({ route }) => {
-                                  const params = route.params as { id?: string, task?: any };
-                                  return { title: params.id ?? "0" };
-                              }}
-                          />
-                      </Stack.Navigator>
-                  </TasksContextProvider>
-              </ThemeContextProvider>
-          </AuthContextProvider>
-      </NetworkContextProvider>
-  );
+    const [expoPushToken, setExpoPushToken] = useState("")
+    const [channels, setChannels] = useState<Notifications.NotificationChannel[]>([]);
+    const [notification, setNotification] = useState<Notifications.Notification | undefined>(
+        undefined
+    );
+    const notificationListener = useRef<Notifications.EventSubscription>();
+    const responseListener = useRef<Notifications.EventSubscription>();
+
+    useEffect(() => {
+        registerForPushNotificationsAsync().then(token => token && setExpoPushToken(token));
+
+        if (Platform.OS === 'android') {
+            Notifications.getNotificationChannelsAsync().then(value => setChannels(value ?? []));
+        }
+        notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+            setNotification(notification);
+        });
+
+        responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+            console.log(response);
+        });
+
+        return () => {
+            notificationListener.current &&
+            Notifications.removeNotificationSubscription(notificationListener.current);
+            responseListener.current &&
+            Notifications.removeNotificationSubscription(responseListener.current);
+        };
+
+    }, []);
+
+
+    return (
+        <NetworkContextProvider>
+            <AuthContextProvider>
+                <ThemeContextProvider>
+                    <TasksContextProvider>
+                        <Stack.Navigator screenOptions={{ headerShown: false }}>
+                            <Stack.Screen name="SignIn" component={SignIn} />
+                            <Stack.Screen name="SignUp" component={SignUp} />
+                            <Stack.Screen name="HomePage" component={HomePage} />
+                            <Stack.Screen
+                                name="Task"
+                                component={TaskScreen}
+                                options={({ route }) => {
+                                    const params = route.params as { id?: string, task?: any };
+                                    return { title: params.id ?? "0" };
+                                }}
+                            />
+                        </Stack.Navigator>
+                    </TasksContextProvider>
+                </ThemeContextProvider>
+            </AuthContextProvider>
+        </NetworkContextProvider>    );
 }
 
 function HomePage() {
@@ -114,4 +158,49 @@ function HomePage() {
       <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
+}
+
+async function registerForPushNotificationsAsync() {
+    let token;
+
+    if (Platform.OS === 'android') {
+        await Notifications.setNotificationChannelAsync('myNotificationChannel', {
+            name: 'A channel is needed for the permissions prompt to appear',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+        });
+    }
+
+    if (Device.isDevice) {
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        console.log("Device", existingStatus)
+        let finalStatus = existingStatus;
+        if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+        }
+
+        if (finalStatus !== 'granted') {
+            return;
+        }
+
+        try {
+            const projectId =
+                Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
+            if (!projectId) {
+                throw new Error('Project ID not found');
+            }
+            token = (
+                await Notifications.getExpoPushTokenAsync({
+                    projectId,
+                })
+            ).data;
+            console.log(token);
+        } catch (e) {
+            token = `${e}`;
+        }
+    }
+
+    return token;
 }
