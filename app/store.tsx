@@ -7,15 +7,14 @@ import { Colors } from "@/constants/Colors";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedText } from "@/components/themed/ThemedText";
 import StoreCard from "@/components/StoreCard";
+import {StoreItem} from "@/constants/StoreItem";
 
 type IData = {
   id: number;
-  title: string | null;
-  description: string | null;
-  price: number | null;
+  title: string;
+  description: string;
+  price: number;
   category: string;
-  created_at: string;
-  promotion: number | null;
   image: string | null;
 };
 
@@ -32,31 +31,25 @@ export default function StoreScreen() {
   }, []);
 
   const getStoreItem = async () => {
-    const { data, error } = await supabase.from("store_item").select();
+    const categories = [...new Set(StoreItem.map((item) => item.category))];
+    let filterItems = [];
 
-    if (data) {
-      const categories = [...new Set(data.map((item) => item.category))];
-      let filterItems = [];
-
-      for (let category of categories) {
-        const itemsInCategory: IData[] = data.filter(
-          (it) => it.category === category
-        );
-        const newItem: IItem = {
-          category: category,
-          items: itemsInCategory,
-        };
-        filterItems.push(newItem);
-      }
-
-      filterItems.sort((itemA: IItem, itemB: IItem) => {
-        if (itemA.category === "default") return -1;
-        if (itemB.category === "default") return 1;
-        return itemA.category.localeCompare(itemB.category);
-      });
-
-      setItems(filterItems);
+    for (let category of categories) {
+      const itemsInCategory: any = StoreItem.filter((item) => item.category === category);
+      const newItem: IItem = {
+        category: category,
+        items: itemsInCategory,
+      };
+      filterItems.push(newItem);
     }
+
+    filterItems.sort((itemA: IItem, itemB: IItem) => {
+      if (itemA.category === "default") return -1;
+      if (itemB.category === "default") return 1;
+      return itemA.category.localeCompare(itemB.category);
+    });
+
+    setItems(filterItems);
   };
 
   return (
