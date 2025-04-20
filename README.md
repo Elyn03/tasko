@@ -73,6 +73,12 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
 Ces variables sont utilisées pour initialiser Supabase dans l'application, afin d'interagir avec la base de données, gérer l'authentification et les tâches utilisateur.
 
+## 🧱 Initialisation de la base de données Supabase
+
+Pour configurer les tables et les fonctions nécessaires au bon fonctionnement de l'app, importez le fichier SQL situé dans le dossier supabase/migration directement dans votre projet Supabase via l'onglet SQL Editor.
+
+Cela créera les tables users et tasks, ainsi que la fonction get_tasks_by_user_email avec la logique de distance nécessaire.
+
 ## 🙌 Auteurs
 
 Céline EAP et Héloïse LE LEZ
