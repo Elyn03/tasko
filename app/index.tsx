@@ -4,15 +4,15 @@ import { ThemedText } from "@/components/themed/ThemedText";
 import { useEffect, useState } from "react";
 import { Session } from "node:inspector";
 import { supabase } from "@/lib/supabase";
-// import { ParamListBase, useNavigation } from "@react-navigation/native";
-// import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+
 import { UserTasks } from "@/context/TaskManager";
 import Task from "@/components/Task";
+import { Task as TaskType } from "@/context/TaskManager";
 
 export default function HomeScreen() {
   const [session, setSession] = useState<Session | null>(null);
-  // const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
-
+  const [unfinishedTasks, setUnfinishedTasks] = useState<TaskType[]>([]);
+  const [finishedTasks, setFinishedTasks] = useState<TaskType[]>([]);
   const { tasks } = UserTasks();
 
   useEffect(() => {
@@ -26,24 +26,54 @@ export default function HomeScreen() {
     });
   }, []);
 
+  useEffect(() => {
+    const unfinished = tasks.filter((task) => !task.done);
+    const finished = tasks.filter((task) => task.done);
+    console.log("Unfinished tasks:", unfinished);
+    console.log("Finished tasks:", finished);
+
+    setUnfinishedTasks(unfinished);
+    setFinishedTasks(finished);
+  }, [tasks]);
+
   return (
     <ThemedView style={styles.container}>
-      <ThemedText type="title" style={{ paddingTop: 16, paddingLeft: 16 }}>
-        Vos tâches :
-      </ThemedText>
-      <ThemedView
-        style={{
-          display: "flex",
-          padding: 16,
-        }}
-        showHeader={false}
-      >
-        {tasks.map((task) => (
-          <Task key={task.task_id} {...task} />
-        ))}
-      </ThemedView>
+      <ThemedView style={styles.container} showHeader={false}>
+        <ThemedText type="title" style={{ paddingTop: 16, paddingLeft: 16 }}>
+          Vos tâches en cours :
+        </ThemedText>
+        <ThemedView
+          style={{
+            display: "flex",
+            padding: 16,
+          }}
+          showHeader={false}
+        >
+          {unfinishedTasks &&
+            unfinishedTasks.map((task) => (
+              <Task key={task.task_id} {...task} />
+            ))}
+        </ThemedView>
 
-      {/* Login overlay that appears when not logged in */}
+        {/* Login overlay that appears when not logged in */}
+      </ThemedView>
+      <ThemedView style={styles.container} showHeader={false}>
+        <ThemedText type="title" style={{ paddingTop: 16, paddingLeft: 16 }}>
+          Vos tâches terminées :
+        </ThemedText>
+        <ThemedView
+          style={{
+            display: "flex",
+            padding: 16,
+          }}
+          showHeader={false}
+        >
+          {finishedTasks &&
+            finishedTasks.map((task) => <Task key={task.task_id} {...task} />)}
+        </ThemedView>
+
+        {/* Login overlay that appears when not logged in */}
+      </ThemedView>
     </ThemedView>
   );
 }

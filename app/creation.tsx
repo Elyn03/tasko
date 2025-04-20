@@ -2,14 +2,25 @@ import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
-import MapView, {MapPressEvent, Marker, PROVIDER_GOOGLE} from "react-native-maps";
+import MapView, {
+  MapPressEvent,
+  Marker,
+  PROVIDER_GOOGLE,
+} from "react-native-maps";
 
 // File
-import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
 
 // Components
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { ThemedButton } from "@/components/themed/ThemedButton";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedText } from "@/components/themed/ThemedText";
@@ -17,6 +28,7 @@ import { ThemedText } from "@/components/themed/ThemedText";
 // Context
 import { UserAuth } from "@/context/AuthContext";
 import { AppTheme } from "@/context/ThemeContext";
+import { UserTasks } from "@/context/TaskManager";
 
 // Hooks
 import { findUser } from "@/hooks/findUser";
@@ -26,20 +38,22 @@ import { insertTaskImage } from "@/hooks/handleLocalStorage";
 // Constants
 import { Colors } from "@/constants/Colors";
 import { MapColors } from "@/constants/MapColors";
+import Task from "@/components/Task";
 
 export default function CreationScreen() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [image, setImage] = useState("")
+  const [image, setImage] = useState("");
   const [position, setPosition] = useState("");
   const [coordinates, setCoordinates] = useState<number[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const fetchTasks = UserTasks();
 
   const mapRef = useRef<MapView>(null);
   const animation = useRef<LottieView>(null);
 
   const { session } = UserAuth();
-  const { theme } = AppTheme()
+  const { theme } = AppTheme();
 
   useEffect(() => {
     console.log("position", position);
@@ -66,7 +80,7 @@ export default function CreationScreen() {
   };
 
   const addImage = async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permission.granted) {
       alert("Permission to access media library is required!");
@@ -75,17 +89,17 @@ export default function CreationScreen() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: "images" as const,
       allowsEditing: false,
-      quality: 1
-    })
+      quality: 1,
+    });
 
     if (!result.canceled) {
-      const finalUri = result.assets[0].uri
+      const finalUri = result.assets[0].uri;
       const fileExists = await FileSystem.getInfoAsync(finalUri);
       if (fileExists.exists) {
         setImage(finalUri);
       }
     }
-  }
+  };
 
   const createTask = async () => {
     let user = await findUser(session);
@@ -104,19 +118,22 @@ export default function CreationScreen() {
       title: title,
       description: description ? description : null,
       location: `POINT(${position})`,
-    }
+    };
 
     const { data, error } = await supabase
-        .from("tasks")
-        .insert(payload)
-        .select();
+      .from("tasks")
+      .insert(payload)
+      .select();
 
     if (data) {
+      console.log("Task created:", data);
+      fetchTasks.fetchTasks();
+
       let imageToInsert = {
         id: data[0].id,
-        image: image
-      }
-      await insertTaskImage(session, imageToInsert)
+        image: image,
+      };
+      await insertTaskImage(session, imageToInsert);
     }
 
     if (error) return { success: false, error: error };
@@ -163,21 +180,18 @@ export default function CreationScreen() {
 
         <View style={styles.inputContainer}>
           <ThemedText type={"default"}>Image</ThemedText>
-          <ThemedButton
-              title={"Ajouter une image"}
-              onPress={addImage}
-          />
+          <ThemedButton title={"Ajouter une image"} onPress={addImage} />
         </View>
-        { image &&
-            <View style={styles.imageContainer}>
-              <Image
-                  source={{
-                    uri: image
-                  }}
-                  style={styles.image}
-              />
-            </View>
-        }
+        {image && (
+          <View style={styles.imageContainer}>
+            <Image
+              source={{
+                uri: image,
+              }}
+              style={styles.image}
+            />
+          </View>
+        )}
 
         <View style={styles.inputContainer}>
           <ThemedText type={"default"}>Position*</ThemedText>
@@ -195,7 +209,11 @@ export default function CreationScreen() {
               multiline={false}
             />
             <TouchableOpacity onPress={getPosition}>
-              <Ionicons name={"locate"} size={36} color={theme === "light" ? Colors.darkTeal : Colors.pinkSalmon} />
+              <Ionicons
+                name={"locate"}
+                size={36}
+                color={theme === "light" ? Colors.darkTeal : Colors.pinkSalmon}
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -207,7 +225,9 @@ export default function CreationScreen() {
               style={styles.image}
               onPress={handleMapPress}
               provider={PROVIDER_GOOGLE}
-              customMapStyle={theme === "light" ? MapColors.light : MapColors.dark}
+              customMapStyle={
+                theme === "light" ? MapColors.light : MapColors.dark
+              }
               initialRegion={{
                 latitude,
                 longitude,
@@ -284,7 +304,7 @@ const styles = StyleSheet.create({
     height: 200,
     backgroundColor: "#444",
     borderRadius: 8,
-    overflow: "hidden"
+    overflow: "hidden",
   },
   mapPositionContainer: {
     width: "100%",
