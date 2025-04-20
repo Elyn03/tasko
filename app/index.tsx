@@ -25,21 +25,6 @@ export default function HomeScreen() {
       setSession(session);
     });
   }, []);
-  /* 
-  const click = () => {
-    console.log(session);
-  };
-
-  const logout = async () => {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      navigation.navigate("SignIn");
-      // Session will be cleared automatically by the onAuthStateChange listener
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
-  }; */
 
   return (
     <ThemedView style={styles.container}>

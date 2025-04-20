@@ -7,6 +7,7 @@ import {
 } from "react";
 import { supabase } from "@/lib/supabase";
 import { UserAuth } from "@/context/AuthContext";
+import { getLocalTaskImages } from "@/hooks/handleLocalStorage";
 
 type Task = {
   task_id: number;
@@ -53,11 +54,30 @@ export function TasksContextProvider({ children }: PropsWithChildren) {
         console.error("error:", error);
         return null;
       }
-      setTasks(data);
+
+      const newData = await mapTaskImages(data)
+
+      setTasks(newData);
     };
 
-    fetchTasks();
+    fetchTasks().then();
   }, [session]);
+
+  const mapTaskImages = async (data: any) => {
+    const images = await getLocalTaskImages(session)
+
+    if (!images) return data
+
+    data.map((item: any) => {
+      const match = images.find((img: any) => img.id == item.task_id)
+
+      if (match) {
+        item.uri = match.image
+      }
+    })
+
+    return data
+  }
 
   return (
     <TasksContext.Provider value={{ tasks }}>{children}</TasksContext.Provider>

@@ -4,7 +4,7 @@ import app from "@/app.json";
 import { useEffect, useState } from "react";
 import { getAddressFromCoords } from "@/lib/getAddressFromCoords";
 
-type Adress = {
+type Address = {
   house_number: string;
   road: string;
   city: string;
@@ -19,7 +19,7 @@ const Task = (task: any) => {
   const apiKey = app.expo.android.config.googleMaps.apiKey;
   const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=15&size=600x300&markers=color:red%7C${lat},${lng}&key=${apiKey}`;
 
-  const [address, setAddress] = useState<Adress | null>(null);
+  const [address, setAddress] = useState<Address | null>(null);
   const { house_number: houseNumber, road, city, railway } = address || {};
   const parts = [railway, houseNumber, road, city, railway].filter(Boolean);
   const title = parts.join(", ");
@@ -29,7 +29,7 @@ const Task = (task: any) => {
       const { address } = await getAddressFromCoords(task.lat, task.lng);
       setAddress(address);
     };
-    fetchAddress();
+    fetchAddress().then();
   }, [task]);
 
   return (
@@ -39,7 +39,7 @@ const Task = (task: any) => {
         <Text style={styles.description}>{title || "Loading address..."}</Text>
       </View>
 
-      <Image source={{ uri: mapUrl }} style={styles.map} />
+      <Image source={{ uri: task.uri ? task.uri : mapUrl }} style={styles.map} />
     </View>
   );
 };
