@@ -8,15 +8,18 @@ import {
 import { supabase } from "@/lib/supabase";
 import { UserAuth } from "@/context/AuthContext";
 import { getLocalTaskImages, stockAllTasks } from "@/hooks/handleLocalStorage";
+import findLocalisation from "@/hooks/findLocalisation";
 
 export type Task = {
   task_id: number;
   title: string;
   description: string | null;
   done: boolean;
-  created_at: Date;
+  created_at: Date | number;
   lng: number;
   lat: number;
+  distance: number;
+  time: number;
 };
 
 const TasksContext = createContext<{
@@ -33,6 +36,8 @@ export function TasksContextProvider({ children }: PropsWithChildren) {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   const { session } = UserAuth();
+
+  const userLocalisation = findLocalisation();
 
   const mapTaskImages = async (data: any) => {
     const images = await getLocalTaskImages(session);
@@ -66,6 +71,8 @@ export function TasksContextProvider({ children }: PropsWithChildren) {
 
     const { data, error } = await supabase.rpc("get_tasks_by_user_email", {
       email,
+      userlat: userLocalisation?.coords.latitude,
+      userlng: userLocalisation?.coords.longitude,
     });
 
     if (error) {
