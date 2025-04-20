@@ -7,8 +7,9 @@ import {
 } from "react";
 import { supabase } from "@/lib/supabase";
 import { UserAuth } from "@/context/AuthContext";
+import { getLocalTaskImages } from "@/hooks/handleLocalStorage";
 
-type Task = {
+export type Task = {
   task_id: number;
   title: string;
   description: string | null;
@@ -20,8 +21,12 @@ type Task = {
 
 const TasksContext = createContext<{
   tasks: Task[];
+  markAsDone: (taskId: number) => Promise<void>;
+  fetchTasks: () => Promise<null | undefined>;
 }>({
   tasks: [],
+  markAsDone: async () => {},
+  fetchTasks: async () => null,
 });
 
 export function TasksContextProvider({ children }: PropsWithChildren) {
@@ -29,38 +34,77 @@ export function TasksContextProvider({ children }: PropsWithChildren) {
 
   const { session } = UserAuth();
 
+  const mapTaskImages = async (data: any) => {
+    const images = await getLocalTaskImages(session);
+
+    if (!images) return data;
+
+    data.map((item: any) => {
+      const match = images.find((img: any) => img.id == item.task_id);
+
+      if (match) {
+        item.uri = match.image;
+      }
+    });
+
+    return data;
+  };
+
+  const fetchTasks = async () => {
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
+
+    if (userError) {
+      console.error("Error fetching authenticated user:", userError);
+      return null;
+    }
+
+    const email = user?.email;
+    console.log("User email:", email);
+
+    const { data, error } = await supabase.rpc("get_tasks_by_user_email", {
+      email,
+    });
+
+    if (error) {
+      console.error("error:", error);
+      return null;
+    }
+    const newData = await mapTaskImages(data);
+
+    setTasks(newData);
+  };
+
   useEffect(() => {
     if (!session) return;
-    const fetchTasks = async () => {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError) {
-        console.error("Error fetching authenticated user:", userError);
-        return;
-      }
-
-      const email = user?.email;
-      console.log("User email:", email);
-
-      const { data, error } = await supabase.rpc("get_tasks_by_user_email", {
-        email: email,
-      });
-
-      if (error) {
-        console.error("error:", error);
-        return null;
-      }
-      setTasks(data);
-    };
 
     fetchTasks();
   }, [session]);
 
+  const markAsDone = async (taskId: number) => {
+    try {
+      const { error } = await supabase
+        .from("tasks")
+        .update({ done: true })
+        .eq("id", taskId);
+
+      if (error) {
+        console.error("Erreur markAsDone:", error);
+        return;
+      }
+
+      fetchTasks();
+    } catch (err) {
+      console.error("Erreur inattendue markAsDone:", err);
+    }
+  };
+
   return (
-    <TasksContext.Provider value={{ tasks }}>{children}</TasksContext.Provider>
+    <TasksContext.Provider value={{ tasks, markAsDone, fetchTasks }}>
+      {children}
+    </TasksContext.Provider>
   );
 }
 

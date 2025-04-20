@@ -2,35 +2,54 @@ import React, { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import LottieView from "lottie-react-native";
-import MapView, {MapPressEvent, Marker, PROVIDER_GOOGLE} from "react-native-maps";
+import MapView, {
+  MapPressEvent,
+  Marker,
+  PROVIDER_GOOGLE,
+} from "react-native-maps";
+
+// File
+import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
 
 // Components
-import {StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { ThemedButton } from "@/components/themed/ThemedButton";
 import { ThemedView } from "@/components/themed/ThemedView";
 import { ThemedText } from "@/components/themed/ThemedText";
 
 // Context
 import { UserAuth } from "@/context/AuthContext";
-import {AppTheme} from "@/context/ThemeContext";
+import { AppTheme } from "@/context/ThemeContext";
+import { UserTasks } from "@/context/TaskManager";
 import {AppNetwork} from "@/context/NetworkContext";
 
 // Hooks
 import { findUser } from "@/hooks/findUser";
 import findLocalisation from "@/hooks/findLocalisation";
 import {storeDatabaseOfflineTask, storeLocalOfflineTask} from "@/hooks/handleOfflineTasks";
+import { insertTaskImage } from "@/hooks/handleLocalStorage";
 
 // Constants
 import { Colors } from "@/constants/Colors";
 import { MapColors } from "@/constants/MapColors";
-
+import Task from "@/components/Task";
 
 export default function CreationScreen() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [image, setImage] = useState("");
   const [position, setPosition] = useState("");
   const [coordinates, setCoordinates] = useState<number[]>([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const fetchTasks = UserTasks();
 
   const mapRef = useRef<MapView>(null);
   const animation = useRef<LottieView>(null);
@@ -63,6 +82,28 @@ export default function CreationScreen() {
     setCoordinates([longitude, latitude]);
   };
 
+  const addImage = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (!permission.granted) {
+      alert("Permission to access media library is required!");
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: "images" as const,
+      allowsEditing: false,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const finalUri = result.assets[0].uri;
+      const fileExists = await FileSystem.getInfoAsync(finalUri);
+      if (fileExists.exists) {
+        setImage(finalUri);
+      }
+    }
+  };
+
   const createTask = async () => {
     let user = await findUser(session);
 
@@ -80,17 +121,30 @@ export default function CreationScreen() {
       title: title,
       description: description ? description : null,
       location: `POINT(${position})`,
+    };
+
+    const { data, error } = await supabase
+      .from("tasks")
+      .insert(payload)
+      .select();
+
+    if (data) {
+      console.log("Task created:", data);
+      fetchTasks.fetchTasks();
+
+      let imageToInsert = {
+        id: data[0].id,
+        image: image,
+      };
+      await insertTaskImage(session, imageToInsert);
     }
 
-    const { error } = await supabase
-        .from("tasks")
-        .insert(payload);
 
-    if (isConnected) {
-      await storeDatabaseOfflineTask()
-    } else {
-      await storeLocalOfflineTask(payload)
-    }
+      if (isConnected) {
+          await storeDatabaseOfflineTask()
+      } else {
+          await storeLocalOfflineTask(payload)
+      }
 
     if (error) return { success: false, error: error };
 
@@ -98,6 +152,7 @@ export default function CreationScreen() {
     setDescription("");
     setPosition("");
     setErrorMessage("");
+    setImage("");
     return { success: true };
   };
 
@@ -134,6 +189,21 @@ export default function CreationScreen() {
         </View>
 
         <View style={styles.inputContainer}>
+          <ThemedText type={"default"}>Image</ThemedText>
+          <ThemedButton title={"Ajouter une image"} onPress={addImage} />
+        </View>
+        {image && (
+          <View style={styles.imageContainer}>
+            <Image
+              source={{
+                uri: image,
+              }}
+              style={styles.image}
+            />
+          </View>
+        )}
+
+        <View style={styles.inputContainer}>
           <ThemedText type={"default"}>Position*</ThemedText>
           <View style={styles.mapPositionContainer}>
             <TextInput
@@ -149,19 +219,25 @@ export default function CreationScreen() {
               multiline={false}
             />
             <TouchableOpacity onPress={getPosition}>
-              <Ionicons name={"locate"} size={36} color={theme === "light" ? Colors.darkTeal : Colors.pinkSalmon} />
+              <Ionicons
+                name={"locate"}
+                size={36}
+                color={theme === "light" ? Colors.darkTeal : Colors.pinkSalmon}
+              />
             </TouchableOpacity>
           </View>
         </View>
 
-        <View style={styles.mapContainer}>
+        <View style={styles.imageContainer}>
           {localisation ? (
             <MapView
               ref={mapRef}
-              style={styles.map}
+              style={styles.image}
               onPress={handleMapPress}
               provider={PROVIDER_GOOGLE}
-              customMapStyle={theme === "light" ? MapColors.light : MapColors.dark}
+              customMapStyle={
+                theme === "light" ? MapColors.light : MapColors.dark
+              }
               initialRegion={{
                 latitude,
                 longitude,
@@ -233,11 +309,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#FEFEFF",
     borderColor: "#757575",
   },
-  mapContainer: {
+  imageContainer: {
     width: "100%",
     height: 200,
     backgroundColor: "#444",
     borderRadius: 8,
+    overflow: "hidden",
   },
   mapPositionContainer: {
     width: "100%",
@@ -254,7 +331,7 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     textAlign: "center",
   },
-  map: {
+  image: {
     width: "100%",
     height: "100%",
   },

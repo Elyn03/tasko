@@ -15,8 +15,10 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ThemedView} from "@/components/themed/ThemedView";
 import {ThemedText} from "@/components/themed/ThemedText";
 import {ThemedButton} from "@/components/themed/ThemedButton";
+
+// Hooks
 import {findUser} from "@/hooks/findUser";
-import {getImageProfile} from "@/hooks/getImageProfile";
+import {getImageProfile} from "@/hooks/handleLocalStorage";
 
 type IUser = {
     id: number;
@@ -52,7 +54,7 @@ export default function ProfileScreen() {
         setDuckUrl(image)
     }
 
-    const toogleThemeColor = () => {
+    const toggleThemeColor = () => {
         setIsLightMode(!isLightMode)
         toggleTheme()
     }
@@ -86,7 +88,7 @@ export default function ProfileScreen() {
                             trackColor={{false: Colors.teal, true: Colors.pinkSalmon}}
                             thumbColor={isLightMode ? Colors.teal : Colors.pinkSalmon}
                             ios_backgroundColor="#3e3e3e"
-                            onValueChange={toogleThemeColor}
+                            onValueChange={toggleThemeColor}
                             value={isLightMode}
                         />
                     </View>
