@@ -62,6 +62,17 @@ npm install
 npx expo start
 ```
 
+#### 🔐 Configuration des variables d'environnement
+
+Pour connecter l'application à votre instance Supabase, créez un fichier .env à la racine du projet avec les variables suivantes :
+
+```BASH
+EXPO_PUBLIC_SUPABASE_URL=your-supabase-url
+EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+Ces variables sont utilisées pour initialiser Supabase dans l'application, afin d'interagir avec la base de données, gérer l'authentification et les tâches utilisateur.
+
 ## 🙌 Auteurs
 
 Céline EAP et Héloïse LE LEZ
