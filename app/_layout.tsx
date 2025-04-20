@@ -39,7 +39,7 @@ export default function RootLayout(props: any) {
                               name="Task"
                               component={TaskScreen}
                               options={({ route }) => {
-                                  const params = route.params as { id?: any };
+                                  const params = route.params as { id?: string, task?: any };
                                   return { title: params.id ?? "0" };
                               }}
                           />
