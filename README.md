@@ -1,50 +1,69 @@
-# Welcome to your Expo app 👋
+# 📍 Tasktrack
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Tasktrack** est une application mobile développée avec **Expo** et **Supabase**. Elle permet de gérer des tâches associées à des lieux, avec notifications de proximité, affichage sur carte et synchronisation en ligne/hors ligne.
 
-## Get started
+---
 
-1. Install dependencies
+## ✨ Fonctionnalités principales
 
-   ```bash
-   npm install
-   ```
+- 🔐 Authentification avec Supabase (email + mot de passe)
+- 📋 Visualisation des tâches :
+  - Liste scrollable avec titre, lieu et statut (fait / pas fait)
+  - Carte interactive avec tâches géolocalisées et bouton de centrage
+- 🧭 Tri des tâches par **distance** ou **date**
+- ✅ Marquer une tâche comme faite (swipe vers la gauche)
+- ➕ Création de tâches :
+  - Titre
+  - Description (optionnelle)
+  - Position par géolocalisation ou carte cliquable
+  - Image optionnelle (via expo-image-picker)
+- 🌗 Mode sombre / clair dynamique
+- 📡 Support offline :
+  - Stockage local avec AsyncStorage
+  - Synchronisation avec Supabase à la reconnexion
 
-2. Start the app
+---
 
-   ```bash
-    npx expo start
-   ```
+## 📦 Technologies utilisées
 
-In the output, you'll find options to open the app in a
+- [Expo](https://expo.dev/)
+- [React Native](https://reactnative.dev/)
+- [Expo Router](https://expo.github.io/router/)
+- [Supabase](https://supabase.com/) (Auth, BDD, géolocalisation avec PostGIS)
+- [expo-location](https://docs.expo.dev/versions/latest/sdk/location/)
+- [expo-notifications](https://docs.expo.dev/versions/latest/sdk/notifications/)
+- [AsyncStorage](https://react-native-async-storage.github.io/async-storage/)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## ⚠️ Contraintes techniques
 
-## Get a fresh project
+- Pas de backend lourd : uniquement Supabase
+- Pagination des tâches (10 par 10 avec `range()`)
+- Stockage local et sync automatique
+- Authentification sécurisée
+- Utilisation des capteurs et permission Android/iOS
 
-When you're ready, run:
+---
+
+## 🧪 Difficultés rencontrées
+
+- Complexité de PostGIS avec le type `geography`, résolution après réinstallation de l’extension
+- L’implémentation des notifications de proximité s’est avérée complexe à tester et à fiabiliser
+
+---
+
+## 🚀 Lancer le projet
 
 ```bash
-npm run reset-project
+git clone https://github.com/ton-user/tasktrack.git
+cd tasktrack
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 🙌 Auteurs
 
-## Learn more
+Céline EAP et Héloïse LE LEZ
 
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Réalisé dans le cadre d’un exercice pédagogique sur le développement mobile avec Expo et Supabase.
