@@ -4,15 +4,17 @@ import {
   Text,
   Image,
   Animated,
-  PanResponder,
+  PanResponder, TouchableOpacity,
 } from "react-native";
 import { Colors } from "@/constants/Colors";
 import app from "@/app.json";
 import { useEffect, useState, useRef } from "react";
 import { getAddressFromCoords } from "@/lib/getAddressFromCoords";
 import { UserTasks } from "@/context/TaskManager";
+import {ParamListBase, useNavigation} from "@react-navigation/native";
+import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 
-type Address = {
+export type Address = {
   house_number: string;
   road: string;
   city: string;
@@ -24,6 +26,7 @@ const Task = (task: any) => {
   const lng = task.lng;
   const apiKey = app.expo.android.config.googleMaps.apiKey;
   const mapUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=15&size=600x300&markers=color:red%7C${lat},${lng}&key=${apiKey}`;
+  const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
   const [address, setAddress] = useState<Address | null>(null);
   const [show, setShow] = useState(true);
@@ -83,20 +86,31 @@ const Task = (task: any) => {
 
   if (!show) return null;
 
+  const navigateToTask = () => {
+    navigation.navigate("Task", {
+      id: task.task_id + "",
+      task: task
+    })
+  }
+
   return (
     <Animated.View
-      style={[
-        styles.container,
-        { backgroundColor: finished ? Colors.salmon : Colors.teal },
-        { transform: [{ translateX }], opacity },
-      ]}
       {...panResponder.panHandlers}
     >
-      <View style={{ flex: 1 }}>
-        <Text style={styles.title}>{task.title}</Text>
-        <Text style={styles.description}>{title || "Loading address..."}</Text>
-      </View>
-      <Image source={{ uri: task.uri || mapUrl }} style={styles.map} />
+      <TouchableOpacity
+          style={[
+            styles.container,
+            { backgroundColor: finished ? Colors.salmon : Colors.teal },
+            { transform: [{ translateX }], opacity },
+          ]}
+          onPress={navigateToTask}
+      >
+        <View style={{ flex: 1 }}>
+          <Text style={styles.title}>{task.title}</Text>
+          <Text style={styles.description}>{title || "Chargement de l'adresse..."}</Text>
+        </View>
+        <Image source={{ uri: task.uri || mapUrl }} style={styles.map} />
+      </TouchableOpacity>
     </Animated.View>
   );
 };

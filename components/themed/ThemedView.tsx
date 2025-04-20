@@ -18,7 +18,7 @@ export function ThemedView({style, lightColor, darkColor, showHeader = true, isS
           style={[styles.container, { backgroundColor }, style]}
           {...otherProps}
       >
-        { showHeader && <Header /> }
+        { showHeader && <Header defaultHeader={true} /> }
         { isScrollView ?
             <ScrollView
                 showsVerticalScrollIndicator={true}
