@@ -21,9 +21,11 @@ import { MapColors } from "@/constants/MapColors";
 
 // Map
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
-import { UserTasks } from "@/context/TaskManager";
+import {Task, UserTasks} from "@/context/TaskManager";
 import { Ionicons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
+import {ParamListBase, useNavigation} from "@react-navigation/native";
+import {NativeStackNavigationProp} from "@react-navigation/native-stack";
 
 export default function MapScreen() {
   const mapRef = useRef<MapView>(null);
@@ -36,7 +38,7 @@ export default function MapScreen() {
     latitude: 0,
     longitude: 0,
   });
-
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const animation = useRef<LottieView>(null);
 
   const localisation = findLocalisation();
@@ -46,6 +48,7 @@ export default function MapScreen() {
   const popupAnim = useRef(new Animated.Value(0)).current;
   const { theme } = AppTheme();
   const { tasks } = UserTasks();
+  const navigation = useNavigation<NativeStackNavigationProp<ParamListBase>>();
 
   const showPopup = () => {
     setPopupVisible(true);
@@ -69,6 +72,15 @@ export default function MapScreen() {
     inputRange: [0, 1],
     outputRange: [200, 0],
   });
+
+  const navigateToTask = () => {
+    if (selectedTask) {
+      navigation.navigate("Task", {
+        id: selectedTask.task_id + "",
+        task: selectedTask,
+      })
+    }
+  }
 
   return (
     <ThemedView showHeader={false} isScrollView={false}>
@@ -112,11 +124,11 @@ export default function MapScreen() {
                   longitude: pin.lng,
                 }}
                 onPress={() => {
-                  console.log(pin.lat, pin.lng);
                   setSelectedCoord({
                     latitude: pin.lat,
                     longitude: pin.lng,
                   });
+                  setSelectedTask(pin);
                   setPopupVisible(true);
                   showPopup();
                 }}
@@ -154,11 +166,11 @@ export default function MapScreen() {
             <View style={styles.arrowDown} />
             <TouchableOpacity
               style={styles.popup}
-              onPress={(e) => e.stopPropagation()}
+              onPress={(e) => navigateToTask()}
             >
-              <Text style={styles.popupTitle}>Tour Eiffel</Text>
-              <Text>Latitude: {selectedCoord.latitude.toFixed(4)}</Text>
-              <Text>Longitude: {selectedCoord.longitude.toFixed(4)}</Text>
+              <ThemedText fontColor={Colors.dark.background} type={"semiBold"} style={styles.popupTitle}>{selectedTask ? selectedTask.title : "Indéfini"}</ThemedText>
+              <ThemedText fontColor={Colors.dark.background}>Latitude: {selectedCoord.latitude.toFixed(4)}</ThemedText>
+              <ThemedText fontColor={Colors.dark.background}>Longitude: {selectedCoord.longitude.toFixed(4)}</ThemedText>
               <TouchableOpacity onPress={hidePopup}></TouchableOpacity>
             </TouchableOpacity>
           </Animated.View>
@@ -204,7 +216,7 @@ const styles = StyleSheet.create({
   },
   floatingButton: {
     position: "absolute",
-    bottom: 20,
+    top: 20,
     right: 20,
     padding: 10,
     borderRadius: 50,
@@ -222,7 +234,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   popup: {
-    backgroundColor: "white",
+    backgroundColor: Colors.pinkSalmon,
     padding: 16,
     borderRadius: 12,
     elevation: 5,
@@ -232,8 +244,6 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   popupTitle: {
-    fontWeight: "bold",
-    fontSize: 16,
     marginBottom: 8,
   },
   arrowDown: {
