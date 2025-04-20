@@ -10,21 +10,9 @@ import Task from "@/components/Task";
 import { Task as TaskType } from "@/context/TaskManager";
 
 export default function HomeScreen() {
-  const [session, setSession] = useState<Session | null>(null);
   const [unfinishedTasks, setUnfinishedTasks] = useState<TaskType[]>([]);
   const [finishedTasks, setFinishedTasks] = useState<TaskType[]>([]);
   const { tasks } = UserTasks();
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session: any } }) => {
-      if (session) {
-        setSession(session);
-      }
-    });
-    supabase.auth.onAuthStateChange((_event, session: any) => {
-      setSession(session);
-    });
-  }, []);
 
   useEffect(() => {
     const unfinished = tasks.filter((task) => !task.done);
