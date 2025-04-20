@@ -138,10 +138,8 @@ export default function CreationScreen() {
       await insertTaskImage(session, imageToInsert);
     }
 
-    if (isConnected) {
-        await storeDatabaseOfflineTask()
-    } else {
-        await storeLocalOfflineTask(payload)
+    if (!isConnected) {
+      await storeLocalOfflineTask(payload)
     }
 
     if (error) return { success: false, error: error };
