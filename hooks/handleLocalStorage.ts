@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {Task} from "@/context/TaskManager";
 
 export async function getImageProfile(session: any) {
     const key = `duck-profile-${session.user.id}`;
@@ -43,4 +44,9 @@ export const getLocalTaskImages = async (session: any) => {
     if (tasksImages) {
         return JSON.parse(tasksImages)
     }
+}
+
+export const stockAllTasks = async (session: any, data: Task[]) => {
+    const key = `all-tasks-user-${session.user.id}`;
+    await AsyncStorage.setItem(key, JSON.stringify(data))
 }

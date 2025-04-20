@@ -29,16 +29,17 @@ import { ThemedText } from "@/components/themed/ThemedText";
 import { UserAuth } from "@/context/AuthContext";
 import { AppTheme } from "@/context/ThemeContext";
 import { UserTasks } from "@/context/TaskManager";
+import {AppNetwork} from "@/context/NetworkContext";
 
 // Hooks
 import { findUser } from "@/hooks/findUser";
 import findLocalisation from "@/hooks/findLocalisation";
+import {storeDatabaseOfflineTask, storeLocalOfflineTask} from "@/hooks/handleOfflineTasks";
 import { insertTaskImage } from "@/hooks/handleLocalStorage";
 
 // Constants
 import { Colors } from "@/constants/Colors";
 import { MapColors } from "@/constants/MapColors";
-import Task from "@/components/Task";
 
 export default function CreationScreen() {
   const [title, setTitle] = useState("");
@@ -53,7 +54,8 @@ export default function CreationScreen() {
   const animation = useRef<LottieView>(null);
 
   const { session } = UserAuth();
-  const { theme } = AppTheme();
+  const { theme } = AppTheme()
+  const { isConnected } = AppNetwork()
 
   useEffect(() => {
     console.log("position", position);
@@ -127,13 +129,17 @@ export default function CreationScreen() {
 
     if (data) {
       console.log("Task created:", data);
-      fetchTasks.fetchTasks();
+      await fetchTasks.fetchTasks();
 
       let imageToInsert = {
         id: data[0].id,
         image: image,
       };
       await insertTaskImage(session, imageToInsert);
+    }
+
+    if (!isConnected) {
+      await storeLocalOfflineTask(payload)
     }
 
     if (error) return { success: false, error: error };
